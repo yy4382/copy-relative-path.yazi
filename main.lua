@@ -1,15 +1,15 @@
 local get_hovered = ya.sync(function()
 	local hovered = cx.active.current.hovered
-	if hovered then
-		return tostring(hovered.url:parent()), hovered.name
+	if not hovered then
+		return nil
 	end
-	return nil, nil
+	return tostring(hovered.url)
 end)
 
 return {
 	entry = function()
-		local parent, name = get_hovered()
-		if not parent or not name then
+		local url = get_hovered()
+		if not url then
 			ya.notify({
 				title = "Copy Relative Path",
 				content = "No file hovered",
@@ -18,6 +18,9 @@ return {
 			})
 			return
 		end
+
+		local parent = url:match("(.*/)")
+		local name = url:match("[^/]+$")
 
 		-- Get path from git root to the file's parent directory
 		local child, err = Command("git")
